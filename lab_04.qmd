@@ -68,12 +68,32 @@ Oh no it has loaded the prices and the average rating as ignoring the decimal po
 
 The file `data1.csv` contains student scores from two tests, with their average.
 
-- [ ] How are missing scores recorded in the raw file, and what do they become when loaded into `R`? What else in the file was loaded as missing?
-- [ ] Compute the mean of `score1`. Why do you get `NA`, and how can you fix this? (Hint: look at how `na.rm` was used in the notes.)
+- [x] How are missing scores recorded in the raw file, and what do they become when loaded into `R`? What else in the file was loaded as missing?
+- [x] Compute the mean of `score1`. Why do you get `NA`, and how can you fix this? (Hint: look at how `na.rm` was used in the notes.)
 - [ ] Look at the row for Henry Zhao. Are his scores really `0`? What happens to the mean of `score1` and of `average` if he is excluded?
 
 ::: {.solution}
+Lets see what's wrong with data1
+```{r}
+data1
+```
+Missing values are loaded into `R` as `NA`.The other thing that is missing is a message about Ivy Chen.
 
+Let's have a go at computing the mean:
+```{r}
+mean(data1$score1)
+```
+Would you look at that it comes out as `NA` as it said it would! Now lets fix:
+```{r}
+mean(data1$score1, na.rm=TRUE)
+```
+It works now!!!!
+
+Henry Zhao was absent so his scores should not count in the calculating of the mean values for score one. How do we exclude??
+
+```{r}
+
+```
 
 :::
 
@@ -127,23 +147,29 @@ For the next few tasks you should use `dplyr` functions, using pipe syntax.
 Try to format your code nicely so it is readable.
 
 
-- [ ] Add a new column to the `tibble` called `volume` that contains the volume of the diamond ($x \times y \times z$).
-
+- [x] Add a new column to the `tibble` called `volume` that contains the volume of the diamond ($x \times y \times z$).
 
 ::: {.solution}
+```{r}
+diamonds <- diamonds |> mutate(volume = x*y*z)
+diamonds
+```
 
 :::
 
-- [ ] Create a `tibble` containing only the numeric columns of `diamonds`. (Hint: look at the tidyselect callout in the notes.)
+- [x] Create a `tibble` containing only the numeric columns of `diamonds`. (Hint: look at the tidyselect callout in the notes.)
 
 ::: {.solution}
-
+```{r}
+diamonds2 <- diamonds |> select(where(is.numeric))
+diamonds2
+```
 :::
 
 Now answer the following research questions.
 
-- [ ] What is the average price of all the diamonds in the dataset?
-- [ ] What is the volume of the 5 highest priced diamonds?
+- [x] What is the average price of all the diamonds in the dataset?
+- [x] What is the volume of the 5 highest priced diamonds?
 - [ ] What is the average, minimum and maximum price of diamonds for each cut?
 - [ ] Ideal is the best cut, yet it has the lowest average price. Can you explain why? (Hint: compare the average `carat` of each cut.)
 - [ ] For each cut, what is the average price-per-carat for diamonds with that cut?
@@ -151,6 +177,23 @@ Now answer the following research questions.
 - [ ] Create a `tibble` containing diamonds that are "unusually" large (having volume more than three standard deviations from the mean volume)?
 
 ::: {.solution}
+Here are my answers to the above research questions:
+
+Average price:
+```{r}
+diamonds|> summarise(price_mean=mean(price) )
+```
+
+Volume of highest priced:
+```{r}
+diamonds |> select(volume, price) |> arrange(desc(price))
+```
+The volume of the 5 highest priced diamonds are: 371.4942, 317.3335, 249.0294,	340.6633, 318.6360.
+
+The average, minimum and maximum price of diamonds for each cut:
+```{r}
+
+```
 
 :::
 
