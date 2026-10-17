@@ -197,11 +197,11 @@ Now answer the following research questions.
 
 - [x] What is the average price of all the diamonds in the dataset?
 - [x] What is the volume of the 5 highest priced diamonds?
-- [ ] What is the average, minimum and maximum price of diamonds for each cut?
-- [ ] Ideal is the best cut, yet it has the lowest average price. Can you explain why? (Hint: compare the average `carat` of each cut.)
-- [ ] For each cut, what is the average price-per-carat for diamonds with that cut?
-- [ ] What are the most common combinations of cut and colour? (Hint: look up the `count` function)
-- [ ] Create a `tibble` containing diamonds that are "unusually" large (having volume more than three standard deviations from the mean volume)?
+- [x] What is the average, minimum and maximum price of diamonds for each cut?
+- [x] Ideal is the best cut, yet it has the lowest average price. Can you explain why? (Hint: compare the average `carat` of each cut.)
+- [x] For each cut, what is the average price-per-carat for diamonds with that cut?
+- [x] What are the most common combinations of cut and colour? (Hint: look up the `count` function)
+- [x] Create a `tibble` containing diamonds that are "unusually" large (having volume more than three standard deviations from the mean volume)?
 
 ::: {.solution}
 Here are my answers to the above research questions:
@@ -219,7 +219,28 @@ The volume of the 5 highest priced diamonds are: 371.4942, 317.3335, 249.0294,	3
 
 The average, minimum and maximum price of diamonds for each cut:
 ```{r}
-diamonds |> group_by(cut) 
+diamonds |> group_by(cut) |> summarise ( mean = mean(price), maximum = max(price), minimum = min(price)) |> arrange(desc(mean))
+```
+
+Why is Ideal the averagely lowest price?
+```{r}
+diamonds |> group_by(cut) |> summarise ( mean_price = mean(price), mean_carat = mean(carat))|> arrange(desc(mean_price))
+```
+
+Average price per carat:
+```{r}
+diamonds |> group_by(cut) |> summarise ( mean_price = mean(price), mean_carat = mean(carat))|> mutate( average_price_per_carat = mean_price/mean_carat) |> arrange(desc(average_price_per_carat))
+```
+
+Most common combinations of cut and colour:
+```{r}
+diamonds |> group_by(cut) |> count(color) |> arrange(desc(n))
+```
+The most common combinations of cut and colour are Ideal with G then E then F then H. 
+
+Table with unusually large diamonds:
+```{r}
+diamonds |> filter (volume > 3*sd(volume) + mean(volume))
 ```
 
 :::
