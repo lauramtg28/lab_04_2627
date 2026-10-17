@@ -240,26 +240,53 @@ The most common combinations of cut and colour are Ideal with G then E then F th
 
 Table with unusually large diamonds:
 ```{r}
-diamonds |> filter (volume > 3*sd(volume) + mean(volume))
+diamonds |> filter (volume > (3*sd(volume) + mean(volume)))
 ```
 
 :::
 
 Before trusting these results, it is worth checking whether they make sense. Since all diamonds have the same density, heavier diamonds are larger, so `carat` and `volume` should be closely related.
 
-- [ ] Look at the largest few diamonds in your answer. Given their `carat`, are their volumes plausible?
-- [ ] Add a new column called `volume_per_carat` containing the ratio of `volume` to `carat`. Look at the diamonds with the smallest and largest values of this ratio. Does this suggest there any errors in the dataset?
-- [ ] Create a new `tibble` called `diamonds_clean` that keeps only diamonds with `volume_per_carat` between 100 and 250. How many diamonds did you remove?
-- [ ] Repeat the "unusually large" question using `diamonds_clean`. How many diamonds do you find now, and why has the number changed?
+- [x] Look at the largest few diamonds in your answer. Given their `carat`, are their volumes plausible?
+- [x] Add a new column called `volume_per_carat` containing the ratio of `volume` to `carat`. Look at the diamonds with the smallest and largest values of this ratio. Does this suggest there any errors in the dataset?
+- [x] Create a new `tibble` called `diamonds_clean` that keeps only diamonds with `volume_per_carat` between 100 and 250. How many diamonds did you remove?
+- [x] Repeat the "unusually large" question using `diamonds_clean`. How many diamonds do you find now, and why has the number changed?
 
 ::: {.solution}
+Given the carat is tiny with the last volumes of diamonds the volumes given are definitely not plausible. 
+checking volume per carat:
+```{r}
+diamonds3 <- diamonds |> mutate(volume_per_carat = volume/carat) |> arrange(volume_per_carat)
 
+diamonds |> mutate(volume_per_carat = volume/carat) |> arrange(desc(volume_per_carat))
+```
+This definitely suggests there are mistakes in the data set. 
+
+New tibble with clean data:
+```{r}
+diamonds_clean = diamonds3 |> filter (volume_per_carat <= 250 & volume_per_carat >= 100)
+diamonds_clean
+```
+I removed 39 rows.
+
+Trying the unusually large diamonds thing now:
+```{r}
+diamonds_clean |> filter (volume > (3*sd(volume) + mean(volume)))
+```
+
+I have more diamonds in this data set because the mean has reduced in size by a lot and so has the standard deviation so more diamonds sit outside of it. 
 :::
 
-- [ ] **Extension:** Find the most expensive diamond of each cut.
+- [x] **Extension:** Find the most expensive diamond of each cut.
 
 ::: {.solution}
-
+```{r}
+ diamonds_clean |> group_by(cut) |> summarise(maximum_price = max(price))
+```
+most expensive diamond for each cut:
+```{r}
+diamonds_clean |> filter( price == 18574	| price == 18707	| price == 18818	| price == 18823 | price == 18806	)
+```
 :::
 
 
