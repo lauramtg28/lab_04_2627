@@ -90,32 +90,59 @@ mean(data1$score1, na.rm=TRUE)
 It works now!!!!
 
 Henry Zhao was absent so his scores should not count in the calculating of the mean values for score one. How do we exclude??
-
 ```{r}
-
+mean(data1$score1[data1$name != "Henry Zhao"], na.rm= TRUE)
 ```
+This has dramatically increased the class average.
 
 :::
 
 The file `data2.txt` contains readings from air quality monitoring stations.
 
-- [ ] Create a `tibble` containing only `station_id` and the particulate matter readings (the columns measured in µg/m³). Use a tidyselect helper rather than typing out the column names.
+- [x] Create a `tibble` containing only `station_id` and the particulate matter readings (the columns measured in µg/m³). Use a tidyselect helper rather than typing out the column names.
 
 ::: {.solution}
+First see what data we are looking at for the column names and types
+```{r}
+data2
+```
+
+```{r}
+data2 |> select(station_id, ends_with("m3"))
+```
 
 :::
 
-- [ ] How many readings are there in the file, and from how many different neighbourhoods? (Hint: look at the "Other Summarise Functions" tip in the notes.)
+- [x] How many readings are there in the file, and from how many different neighbourhoods? (Hint: look at the "Other Summarise Functions" tip in the notes.)
 
 ::: {.solution}
+I did this already in the assessment. Starting to see that completing the lab before the assessment might be a good idea. 
 
+```{r}
+data2 |> summarise(n_readings = n(), n_neighbourhoods = n_distinct(neighborhood))
+```
 :::
 
-- [ ] Which readings have a `status` other than `OK`? What do you notice about their pollution readings and `sensor_uptime_pct`?
+- [x] Which readings have a `status` other than `OK`? What do you notice about their pollution readings and `sensor_uptime_pct`?
 - [ ] Compute the mean `pm2_5_ug_m3` over all readings, and over only the readings with status `OK`. Which would you report, and why?
 
 ::: {.solution}
+First box we do first: status other than okay with columns for pollution readings and `sensor_uptime_pct`.
 
+```{r}
+data2 |> filter( status != "OK") |> select(status,sensor_uptime_pct,  ends_with("m3"))
+```
+I notice that one of them is an error so there are no values for pollution and the `sensor_uptime_pct` is only 60 which could be why is error. I don't know why the other ones are weird.
+
+Now for computing the mean accross all:
+```{r}
+data2 |> summarise(mean_pollution = mean(pm2_5_ug_m3, na.rm = TRUE))
+```
+Now for just those who's status is OK:
+```{r}
+data2 |> filter(status != "OK") |> summarise(mean_pollution = mean(pm2_5_ug_m3, na.rm = TRUE))
+```
+The mean has gone up. 
 :::
 
 ### Task 2: `dplyr`
@@ -192,7 +219,7 @@ The volume of the 5 highest priced diamonds are: 371.4942, 317.3335, 249.0294,	3
 
 The average, minimum and maximum price of diamonds for each cut:
 ```{r}
-
+diamonds |> group_by(cut) 
 ```
 
 :::
