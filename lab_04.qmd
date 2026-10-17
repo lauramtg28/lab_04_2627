@@ -296,40 +296,71 @@ The file `data/part3/assessment.csv` contains a messy student scores table.
 It records the student's scores out of 100 across 8 possible assessments.
 However, not all students take all assessments, and assessments the student has not taken are recorded as `NA`.
 
-- [ ] Load the file and look at it. Recall the three rules of tidy data from the notes. Is this table tidy? If not, which rule(s) does it break?
+- [x] Load the file and look at it. Recall the three rules of tidy data from the notes. Is this table tidy? If not, which rule(s) does it break?
 
 ::: {.solution}
-
+```{r}
+#| message: FALSE
+assessment <-read_csv("data/part3/assessment.csv")
+assessment
+```
+It is not tidy because the column names begin with capital letters
 :::
 
-- [ ] Tidy the table: pivot into long format with one row per student and assessment, and drop missing scores.
-- [ ] Compute each student's overall average, and the number of assessments they took. (Hint: look at the "Other Summarise Functions" tip in the notes.)
+- [x] Tidy the table: pivot into long format with one row per student and assessment, and drop missing scores.
+
+- [x] Compute each student's overall average, and the number of assessments they took. (Hint: look at the "Other Summarise Functions" tip in the notes.)
 
 ::: {.solution}
-
+long format table
+```{r}
+assessment2 <- assessment |> pivot_longer(cols= - student_id, names_to = "semester", values_to = "score") |> filter( is.na(score) == FALSE)
+assessment2
+```
+Each student's overall average and number of assessments:
+```{r}
+assessment2 |> group_by(student_id) |> summarise( average_score = mean(score), n_assessments = n())
+```
 :::
 
-- [ ] Redo the pivot, this time using `starts_with` to choose the columns to pivot. Check you get the same result. Suppose a new column `student_name` were added to the file: which of the two approaches would still work, and why?
+- [x] Redo the pivot, this time using `starts_with` to choose the columns to pivot. Check you get the same result. Suppose a new column `student_name` were added to the file: which of the two approaches would still work, and why?
 
 ::: {.solution}
+Redoing pivot
+```{r}
+assessment3 <- assessment |> pivot_longer( cols = starts_with("semester"), names_to = "assessment", values_to = "score") |> filter(is.na(score) == FALSE)
+assessment3
 
+```
+The second approach would work because it gathers up all the semester columns whereas the other one gathers up everything except one column and we would need it to gather everything except two columns.
 :::
 
 One of the key principles of tidy data is that each cell should contain only one value.
 Notice that in the new dataset, the column `assessment` contains *two* values: the Semester and the Assessment ID,
 separated by an `_`.
 
-- [ ] Use `separate_wider_delim` to split `assessment` into two columns, one with the assessment ID and one with the Semester.
-- [ ] Create a wide table with one row per student, and two new columns containing the average score in Semester 1 and Semester 2.
+- [x] Use `separate_wider_delim` to split `assessment` into two columns, one with the assessment ID and one with the Semester.
+- [x] Create a wide table with one row per student, and two new columns containing the average score in Semester 1 and Semester 2.
 
 ::: {.solution}
-
+```{r}
+assessment_3 <- assessment3 |> separate_wider_delim(assessment, delim = "_" , names = c("semester", "assessment_id"))
+assessment_3
+```
+New table:
+```{r}
+assessment_wide <- assessment_3 |> select(student_id, semester, score)|> group_by(student_id, semester) |> summarise(average_score = mean(score), .groups = "drop") |> pivot_wider (names_from = semester, values_from = average_score)
+assessment_wide
+```
 :::
 
-- [ ] Add a column `improvement` to the wide table showing how much each student's average score changed from Semester 1 to Semester 2. Which students improved the most, and which declined the most?
+- [x] Add a column `improvement` to the wide table showing how much each student's average score changed from Semester 1 to Semester 2. Which students improved the most, and which declined the most?
 
 ::: {.solution}
-
+```{r}
+assessment_wide |> mutate(improvement = Semester2 - Semester1) |> arrange(desc(improvement))
+```
+Student S002 improved the most and student S005 declined the most.
 :::
 
 - [ ] **Extension:** We tidied this dataset in two steps: `pivot_longer` followed by `separate_wider_delim`. Can you do both in a single call to `pivot_longer`? (Hint: look at the `names_sep` argument in `?pivot_longer`.)
